@@ -5,7 +5,6 @@ var db = null;
 var postKey = 'post';
 var storeName = 'comments';
 var postId = (function() {
-    return 123;
     var parts = window.location.href;
     return parts[parts.indexOf('comments') + 1];
 })();
@@ -85,6 +84,16 @@ request.onsuccess = function(e) {
     db = e.target.result;
 
     getComments(walk);
+
+    var timeout = null;
+    Array.prototype.forEach.call(document.getElementsByClassName('commentarea'), function(div) {
+        div.addEventListener('DOMSubtreeModified', function() {
+            if (timeout) {
+                clearTimeout(timeout);
+            }
+            timeout = setTimeout(walk, 100);
+        });
+    });
 };
 
 //indexedDB.deleteDatabase('unreaddit');
