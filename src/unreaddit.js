@@ -5,7 +5,7 @@ var db = null;
 var postKey = 'post';
 var storeName = 'comments';
 var postId = (function() {
-    var parts = window.location.href;
+    var parts = window.location.href.split('/');
     return parts[parts.indexOf('comments') + 1];
 })();
 
@@ -60,6 +60,7 @@ var cache = [];
 
 function walk() {
     var newIds = [];
+//    console.log('walk', comments, cache);
     Array.prototype.forEach.call(document.getElementsByClassName('thing'), function(div) {
         if (~cache.indexOf(div)) {
             return;
@@ -70,7 +71,7 @@ function walk() {
             return;
         }
         id = id.split('_')[1];
-        if (~comments.indexOf(id)) {
+        if (id === postId || ~comments.indexOf(id)) {
             return;
         }
         div.classList.add('__unreaddit_new__');
@@ -85,15 +86,15 @@ request.onsuccess = function(e) {
 
     getComments(walk);
 
-    var timeout = null;
-    Array.prototype.forEach.call(document.getElementsByClassName('commentarea'), function(div) {
-        div.addEventListener('DOMSubtreeModified', function() {
-            if (timeout) {
-                clearTimeout(timeout);
-            }
-            timeout = setTimeout(walk, 100);
-        });
-    });
+//    var timeout = null;
+//    Array.prototype.forEach.call(document.getElementsByClassName('commentarea'), function(div) {
+//        div.addEventListener('DOMSubtreeModified', function() {
+//            if (timeout) {
+//                clearTimeout(timeout);
+//            }
+//            timeout = setTimeout(walk, 100);
+//        });
+//    });
 };
 
 //indexedDB.deleteDatabase('unreaddit');
