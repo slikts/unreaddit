@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "unreaddit",
+    "description": "The name of the application"
+  },
+  "appDescription": {
+    "message": "Highlights unread reddit comments.",
+    "description": "The description of the application"
+  }
+}

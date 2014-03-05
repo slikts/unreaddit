@@ -1,0 +1,33 @@
+{
+    "name": "__MSG_appName__",
+    "version": "0.1.0",
+    "manifest_version": 2,
+    "description": "__MSG_appDescription__",
+    "icons": {
+        "16": "images/icon-16.png",
+        "128": "images/icon-128.png"
+    },
+    "permissions": [
+        "http://*.reddit.com/",
+        "https://*.reddit.com/"
+    ],
+    "default_locale": "en",
+    "content_scripts": [
+        {
+            "matches": [
+                "http://*.reddit.com/comments/*",
+                "https://*.reddit.com/comments/*",
+                "http://*.reddit.com/*/comments/*",
+                "https://*.reddit.com/*/comments/*"
+            ],
+            "css": [
+                "unreaddit.css"
+            ],
+            "js": [
+                "unreaddit.js"
+            ],
+            "run_at": "document_end",
+            "all_frames": false
+        }
+    ]
+}
