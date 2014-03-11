@@ -23,7 +23,6 @@ function getStore(callback) {
     return transaction.objectStore(storeName);
 }
 
-
 var comments = [];
 function getComments(callback) {
     var objectStore = getStore(callback);
@@ -57,7 +56,7 @@ function addComments(ids) {
 }
 
 var cache = [];
-
+var hl = [];
 function walk() {
     var newIds = [];
 //    console.log('walk', comments, cache);
@@ -74,6 +73,7 @@ function walk() {
         if (id === postId || ~comments.indexOf(id)) {
             return;
         }
+        hl.push(div);
         div.classList.add('__unreaddit_new__');
         comments.push(id);
         newIds.push(id);
@@ -85,6 +85,31 @@ request.onsuccess = function(e) {
     db = e.target.result;
 
     getComments(walk);
+};
+
+function getOffsetTop(el) {
+    if (!el) {
+        return null;
+    }
+    return el.offsetTop || getOffsetTop(el.parentNode);
+}
+
+document.addEventListener('keydown', function(e) {
+    if (!e.ctrlKey || e.which !== 32) {
+        return;
+    }
+    e.preventDefault();
+
+    var totalHeight = scrollY + innerHeight;
+    hl.every(function(div) {
+        var offsetTop = getOffsetTop(div);
+        if (!offsetTop || offsetTop <= totalHeight) {
+            return true;
+        }
+        scrollTo(0, offsetTop);
+        return false;
+    });
+}, true);
 
 //    var timeout = null;
 //    Array.prototype.forEach.call(document.getElementsByClassName('commentarea'), function(div) {
@@ -95,6 +120,5 @@ request.onsuccess = function(e) {
 //            timeout = setTimeout(walk, 100);
 //        });
 //    });
-};
 
 //indexedDB.deleteDatabase('unreaddit');
