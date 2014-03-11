@@ -8,6 +8,7 @@ var postId = (function() {
     var parts = window.location.href.split('/');
     return parts[parts.indexOf('comments') + 1];
 })();
+var unreadClassname = '__unreaddit_new__';
 
 request.onupgradeneeded = function(e) {
     db = e.target.result;
@@ -55,11 +56,17 @@ function addComments(ids) {
     );
 }
 
+function getVisible(el) {
+    if (!el) {
+        return null;
+    }
+    return el.offsetHeight ? el : getVisible(el.parentNode);
+}
+
 var cache = [];
 var hl = [];
 function walk() {
     var newIds = [];
-//    console.log('walk', comments, cache);
     Array.prototype.forEach.call(document.getElementsByClassName('thing'), function(div) {
         if (~cache.indexOf(div)) {
             return;
@@ -74,7 +81,11 @@ function walk() {
             return;
         }
         hl.push(div);
-        div.classList.add('__unreaddit_new__');
+        div.classList.add(unreadClassname);
+        var visible = getVisible(div);
+        if (visible !== div) {
+            visible.classList.add('__unreaddit_child_unread__');
+        }
         comments.push(id);
         newIds.push(id);
     });

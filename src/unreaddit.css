@@ -1,3 +1,4 @@
+.__unreaddit_child_unread__ > .entry > .collapsed,
 .__unreaddit_new__ > .entry {
     background: rgba(255, 0, 0, .025) !important;
     outline: rgba(255, 0, 0, .35) solid 1px !important;
