@@ -56,9 +56,12 @@ function addComments(ids) {
     );
 }
 
-function getVisible(el) {
+function getVisible(el, callback) {
     if (!el) {
         return null;
+    }
+    if (callback) {
+        callback(el);
     }
     return el.offsetHeight ? el : getVisible(el.parentNode);
 }
@@ -82,10 +85,11 @@ function walk() {
         }
         hl.push(div);
         div.classList.add(unreadClassname);
-        var visible = getVisible(div);
-        if (visible !== div) {
-            visible.classList.add('__unreaddit_child_unread__');
-        }
+        getVisible(div, function(visible) {
+            if (visible.classList.contains('entry')) {
+                visible.classList.add('__unreaddit_child_unread__');
+            }
+        });
         comments.push(id);
         newIds.push(id);
     });
