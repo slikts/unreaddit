@@ -4,6 +4,6 @@
 
 A simple Chrome extension that remembers which reddit comments have
 been seen before and highlights the unseen ones.
-Ctrl+Space scrolls to the closest unread comment outside of view.
+<kbd>Ctrl+Space</kbd> scrolls to the closest unread comment outside of view.
 
 MIT licensed.
