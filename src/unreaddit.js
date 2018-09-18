@@ -66,7 +66,7 @@ const cache = []
 const hl = []
 const walk = () => {
   const newIds = []
-  Array.prototype.forEach.call(document.getElementsByClassName(`thing`), div => {
+  void [...document.querySelectorAll(`.thing`)].forEach(div => {
     if (~cache.indexOf(div)) {
       return
     }
