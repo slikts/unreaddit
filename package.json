@@ -6,6 +6,11 @@
     "type": "git",
     "url": "git+https://github.com/slikts/unreaddit.git"
   },
+  "scripts": {
+    "build": "web-ext build -s src -a build -o",
+    "lint": "web-ext lint -s src",
+    "run": "web-ext run -s src"
+  },
   "keywords": [
     "reddit",
     "extension",
@@ -22,6 +27,7 @@
     "eslint": "^5.6.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-prettier": "^2.6.2",
-    "prettier": "^1.14.2"
+    "prettier": "^1.14.2",
+    "web-ext": "^2.9.1"
   }
 }
