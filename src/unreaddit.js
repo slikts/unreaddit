@@ -75,7 +75,7 @@ const walk = () => {
     if (!id) {
       return
     }
-    id = id.split(`_`)[1]
+    ;[id] = id.split(`_`)
     if (id === postId || ~comments.indexOf(id)) {
       return
     }
