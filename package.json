@@ -1,0 +1,27 @@
+{
+  "name": "unreaddit",
+  "version": "1.0.0",
+  "description": "Highlight unread reddit comments",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/slikts/unreaddit.git"
+  },
+  "keywords": [
+    "reddit",
+    "extension",
+    "browser"
+  ],
+  "author": "slikts <dabas@untu.ms>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/slikts/unreaddit/issues"
+  },
+  "homepage": "https://github.com/slikts/unreaddit#readme",
+  "devDependencies": {
+    "@slikts/eslint-config-prettier": "^5.1.2",
+    "eslint": "^5.6.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-prettier": "^2.6.2",
+    "prettier": "^1.14.2"
+  }
+}
