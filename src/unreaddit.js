@@ -1,130 +1,130 @@
-'use strict';
+const request = indexedDB.open(`unreaddit`, 1)
+let db = null
+const postKey = `post`
+const storeName = `comments`
+const postId = (() => {
+  const parts = window.location.href.split(`/`)
+  return parts[parts.indexOf(`comments`) + 1]
+})()
+const unreadClassname = `__unreaddit_new__`
 
-var request = indexedDB.open('unreaddit', 1);
-var db = null;
-var postKey = 'post';
-var storeName = 'comments';
-var postId = (function() {
-    var parts = window.location.href.split('/');
-    return parts[parts.indexOf('comments') + 1];
-})();
-var unreadClassname = '__unreaddit_new__';
+request.onupgradeneeded = e => {
+  db = e.target.result
+  const objectStore = db.createObjectStore(storeName, { autoIncrement: true })
+  objectStore.createIndex(postKey, postKey, { unique: false })
+}
 
-request.onupgradeneeded = function(e) {
-    db = e.target.result;
-    var objectStore = db.createObjectStore(storeName, {autoIncrement: true});
-    objectStore.createIndex(postKey, postKey, {unique: false});
-};
+const getStore = callback => {
+  const transaction = db.transaction([storeName], `readwrite`)
+  if (callback) {
+    transaction.oncomplete = callback
+  }
+  return transaction.objectStore(storeName)
+}
 
-function getStore(callback) {
-    var transaction = db.transaction([storeName], 'readwrite');
-    if (callback) {
-        transaction.oncomplete = callback;
+const comments = []
+const getComments = callback => {
+  const objectStore = getStore(callback)
+  const index = objectStore.index(postKey)
+  const singleKeyRange = IDBKeyRange.only(postId)
+
+  index.openCursor(singleKeyRange).onsuccess = event => {
+    const cursor = event.target.result
+    if (cursor) {
+      comments.push(cursor.value.comment)
+      cursor.continue()
     }
-    return transaction.objectStore(storeName);
+  }
 }
 
-var comments = [];
-function getComments(callback) {
-    var objectStore = getStore(callback);
-    var index = objectStore.index(postKey);
-    var singleKeyRange = IDBKeyRange.only(postId);
-
-    index.openCursor(singleKeyRange).onsuccess = function(event) {
-        var cursor = event.target.result;
-        if (cursor) {
-            comments.push(cursor.value.comment);
-            cursor.continue();
-        }
-    };
+const addComments = ids => {
+  if (!ids.length) {
+    return
+  }
+  const store = getStore(() => {
+    console.log(`stored`, ids.length)
+  })
+  ids.forEach(item => {
+    store.add({
+      post: postId,
+      comment: item,
+    })
+  })
 }
 
-function addComments(ids) {
-    if (!ids.length) {
-        return;
+const getVisible = (el, callback) => {
+  if (!el) {
+    return null
+  }
+  if (callback) {
+    callback(el)
+  }
+  return el.offsetHeight ? el : getVisible(el.parentNode)
+}
+
+const cache = []
+const hl = []
+const walk = () => {
+  const newIds = []
+  Array.prototype.forEach.call(document.getElementsByClassName(`thing`), div => {
+    if (~cache.indexOf(div)) {
+      return
     }
-    var store = getStore(function() {
-        console.log('stored', ids.length);
-    });
-    ids.forEach(
-            function(item) {
-                store.add({
-                    post: postId,
-                    comment: item
-                });
-            }
-    );
-}
-
-function getVisible(el, callback) {
-    if (!el) {
-        return null;
+    cache.push(div)
+    let id = div.getAttribute(`data-fullname`)
+    if (!id) {
+      return
     }
-    if (callback) {
-        callback(el);
+    id = id.split(`_`)[1]
+    if (id === postId || ~comments.indexOf(id)) {
+      return
     }
-    return el.offsetHeight ? el : getVisible(el.parentNode);
+    hl.push(div)
+    div.classList.add(unreadClassname)
+    getVisible(div, visible => {
+      if (visible.classList.contains(`entry`)) {
+        visible.classList.add(`__unreaddit_child_unread__`)
+      }
+    })
+    comments.push(id)
+    newIds.push(id)
+  })
+  addComments(newIds)
 }
 
-var cache = [];
-var hl = [];
-function walk() {
-    var newIds = [];
-    Array.prototype.forEach.call(document.getElementsByClassName('thing'), function(div) {
-        if (~cache.indexOf(div)) {
-            return;
-        }
-        cache.push(div);
-        var id = div.getAttribute('data-fullname');
-        if (!id) {
-            return;
-        }
-        id = id.split('_')[1];
-        if (id === postId || ~comments.indexOf(id)) {
-            return;
-        }
-        hl.push(div);
-        div.classList.add(unreadClassname);
-        getVisible(div, function(visible) {
-            if (visible.classList.contains('entry')) {
-                visible.classList.add('__unreaddit_child_unread__');
-            }
-        });
-        comments.push(id);
-        newIds.push(id);
-    });
-    addComments(newIds);
+request.onsuccess = e => {
+  db = e.target.result
+
+  getComments(walk)
 }
 
-request.onsuccess = function(e) {
-    db = e.target.result;
-
-    getComments(walk);
-};
-
-function getOffsetTop(el) {
-    if (!el) {
-        return null;
-    }
-    return el.offsetTop || getOffsetTop(el.parentNode);
+const getOffsetTop = el => {
+  if (!el) {
+    return null
+  }
+  return el.offsetTop || getOffsetTop(el.parentNode)
 }
 
-document.addEventListener('keydown', function(e) {
+document.addEventListener(
+  `keydown`,
+  e => {
     if (!e.ctrlKey || e.which !== 32) {
-        return;
+      return
     }
-    e.preventDefault();
+    e.preventDefault()
 
-    var totalHeight = scrollY + innerHeight;
-    hl.every(function(div) {
-        var offsetTop = getOffsetTop(div);
-        if (!offsetTop || offsetTop <= totalHeight) {
-            return true;
-        }
-        scrollTo(0, offsetTop);
-        return false;
-    });
-}, true);
+    const totalHeight = window.scrollY + window.innerHeight
+    hl.every(div => {
+      const offsetTop = getOffsetTop(div)
+      if (!offsetTop || offsetTop <= totalHeight) {
+        return true
+      }
+      window.scrollTo(0, offsetTop)
+      return false
+    })
+  },
+  true,
+)
 
 //    var timeout = null;
 //    Array.prototype.forEach.call(document.getElementsByClassName('commentarea'), function(div) {
@@ -136,4 +136,4 @@ document.addEventListener('keydown', function(e) {
 //        });
 //    });
 
-//indexedDB.deleteDatabase('unreaddit');
+// indexedDB.deleteDatabase('unreaddit');
